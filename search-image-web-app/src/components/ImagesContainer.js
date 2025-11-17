@@ -4,6 +4,13 @@ import ImageGrid from './ImageGrid';
 import SkeletonGrid from './SkeletonGrid';
 import ImageModal from './ImageModal';
 
+// Base URL for the backend API.
+// In production (e.g. on Render), set REACT_APP_API_BASE_URL to
+// your backend URL, for example: https://your-backend.onrender.com
+// For local development you can keep the default http://localhost:5000.
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+
 function ImagesContainer({ searchQuery }) {
     const [images, setImages] = useState([]);
     const [error, setError] = useState(null);
@@ -19,7 +26,8 @@ function ImagesContainer({ searchQuery }) {
     const IMAGES_PER_PAGE = 30;
 
     const buildUrl = useCallback((q) => {
-        return `/api/images?q=${encodeURIComponent(q || '')}`;
+        const base = API_BASE_URL.replace(/\/$/, '');
+        return `${base}/api/images?q=${encodeURIComponent(q || '')}`;
     }, []);
 
     const fetchPage = useCallback(async (page, replace) => {
