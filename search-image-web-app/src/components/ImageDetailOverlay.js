@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from '../styles/ImageDetailOverlay.module.css';
-import { FaTimes, FaDownload, FaExternalLinkAlt, FaUser, FaHeart, FaEye } from 'react-icons/fa';
+import { FaTimes, FaDownload, FaUser, FaHeart, FaEye } from 'react-icons/fa';
 
 
 // ImageDetailOverlay shows the big image with its author, stats, and quick actions, and can be closed again.
@@ -72,9 +72,6 @@ function ImageDetailOverlay({ image, originRect, containerRect, onClose }) {
             <div className={styles.actions}>
               <a className={styles.primaryBtn} href={downloadUrl} download target="_blank" rel="noopener noreferrer">
                 <span><FaDownload /> Download</span>
-              </a>
-              <a className={styles.secondaryBtn} href={pageURL} target="_blank" rel="noopener noreferrer">
-                <span><FaExternalLinkAlt /> View on Pixabay</span>
               </a>
             </div>
           </div>

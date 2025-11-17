@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styles from '../styles/ImageModal.module.css';
-import { FaTimes, FaDownload, FaExternalLinkAlt, FaUser, FaHeart, FaEye, FaShareAlt } from 'react-icons/fa';
+import { FaTimes, FaDownload, FaUser, FaHeart, FaEye, FaShareAlt } from 'react-icons/fa';
 
 // ImageModal covers the screen with a large version of the image and its key details.
 function ImageModal({ image, onClose }) {
@@ -66,14 +66,6 @@ function ImageModal({ image, onClose }) {
                             rel="noopener noreferrer"
                         >
                             <FaDownload /> Download
-                        </a>
-                        <a
-                            className={styles.secondaryBtn}
-                            href={pageURL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <FaExternalLinkAlt /> View on Pixabay
                         </a>
                         <button
                             className={styles.secondaryBtn}
