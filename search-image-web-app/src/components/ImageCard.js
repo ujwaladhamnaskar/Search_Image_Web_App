@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import styles from '../styles/ImageCard.module.css';
 import { FaHeart, FaEye } from 'react-icons/fa';
 
+// ImageCard shows a single image thumbnail together with its tags, author, likes, and views.
 function ImageCard({ image, onSelect }) {
     const ref = useRef(null);
     const [loaded, setLoaded] = useState(false);

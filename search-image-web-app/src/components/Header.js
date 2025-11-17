@@ -3,6 +3,9 @@ import styles from '../styles/Header.module.css';
 import { FaMoon, FaSun } from 'react-icons/fa';
 import zoomLogo from '../images/zoom.png';
 
+// Header shows the app name and logo at the top of the page so users know where they are.
+// It also lets the user switch between light and dark themes, and remembers that choice.
+// The chosen theme is stored in localStorage and applied as a data attribute on the <html> tag.
 function Header() {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'light';

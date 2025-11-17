@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import styles from '../styles/ImageModal.module.css';
 import { FaTimes, FaDownload, FaExternalLinkAlt, FaUser, FaHeart, FaEye, FaShareAlt } from 'react-icons/fa';
 
+// ImageModal covers the screen with a large version of the image and its key details.
 function ImageModal({ image, onClose }) {
     useEffect(() => {
         if (!image) return;

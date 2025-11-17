@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import '../styles/serachBar.css';
 
+// SearchBar is the text box where the user types what they want to find.
+// It keeps that text in local state and only tells the parent when the form is submitted.
+// This means the rest of the app updates only when the user actually starts a search.
 function SearchBar({ onSearch }) {
   const [inputValue, setInputValue] = useState('');
 

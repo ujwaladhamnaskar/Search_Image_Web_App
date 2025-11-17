@@ -4,13 +4,11 @@ import ImageGrid from './ImageGrid';
 import SkeletonGrid from './SkeletonGrid';
 import ImageModal from './ImageModal';
 
-// Base URL for the backend API.
-// In production (e.g. on Render), set REACT_APP_API_BASE_URL to
-// your backend URL, for example: https://your-backend.onrender.com
-// For local development you can keep the default http://localhost:5000.
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+
+// keeps track of loading, errors, pages, and which image is currently opened.
+// It passes the loaded images into the grid and shows a modal when the user selects one.
 function ImagesContainer({ searchQuery }) {
     const [images, setImages] = useState([]);
     const [error, setError] = useState(null);
@@ -38,13 +36,13 @@ function ImagesContainer({ searchQuery }) {
             setCurrentPage(1);
             return;
         }
-        // If we are replacing (new search), abort any in-flight request
+        
         if (replace && abortRef.current) {
             try { abortRef.current.abort(); } catch (_) {}
             abortRef.current = null;
             isFetchingRef.current = false;
         }
-        // Prevent overlapping pagination fetches
+        
         if (!replace && isFetchingRef.current) return;
         isFetchingRef.current = true;
         setError(null);
@@ -59,7 +57,6 @@ function ImagesContainer({ searchQuery }) {
             const url = `${buildUrl(searchQuery)}&page=${page}&per_page=${IMAGES_PER_PAGE}`;
             const res = await axios.get(url, { signal: controller.signal });
             if (controller.signal.aborted) return;
-            // Ignore stale results if query changed mid-flight
             if (currentQueryRef.current !== searchQuery) return;
             const hits = res.data?.hits || [];
             const total = res.data?.totalPages || 1;
@@ -80,7 +77,6 @@ function ImagesContainer({ searchQuery }) {
                 return unique;
             });
         } catch (err) {
-            // Ignore aborted requests
             if (err?.name !== 'CanceledError' && err?.name !== 'AbortError') {
                 setError('Failed to load images. Please try again.');
             }
@@ -92,7 +88,6 @@ function ImagesContainer({ searchQuery }) {
     }, [buildUrl, searchQuery]);
 
     useEffect(() => {
-        // On search change, fetch first page
         if (!searchQuery) {
             if (abortRef.current) {
                 try { abortRef.current.abort(); } catch (_) {}
@@ -104,7 +99,6 @@ function ImagesContainer({ searchQuery }) {
             setTotalPages(1);
             return;
         }
-        // Reset and mark latest query, clear prior images to avoid flashes
         currentQueryRef.current = searchQuery;
         setImages([]);
         setError(null);

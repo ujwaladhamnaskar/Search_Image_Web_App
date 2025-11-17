@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styles from '../styles/ImageDetailOverlay.module.css';
 import { FaTimes, FaDownload, FaExternalLinkAlt, FaUser, FaHeart, FaEye } from 'react-icons/fa';
 
+
+// ImageDetailOverlay shows the big image with its author, stats, and quick actions, and can be closed again.
 function ImageDetailOverlay({ image, originRect, containerRect, onClose }) {
   const [expanded, setExpanded] = useState(false);
 
