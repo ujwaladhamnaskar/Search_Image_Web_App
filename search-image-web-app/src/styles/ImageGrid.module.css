@@ -1,0 +1,42 @@
+/* Responsive Image Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* dimMode removed (return to normal modal behavior) */
+
+.empty {
+  color: var(--muted, #6b7280);
+  text-align: center;
+  padding: 48px 16px;
+  font-size: 16px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    padding: 16px;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    padding: 12px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .grid {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+}
+
+

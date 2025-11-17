@@ -1,0 +1,147 @@
+import axios from 'axios';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import ImageGrid from './ImageGrid';
+import SkeletonGrid from './SkeletonGrid';
+import ImageModal from './ImageModal';
+
+function ImagesContainer({ searchQuery }) {
+    const [images, setImages] = useState([]);
+    const [error, setError] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [isInitialLoading, setIsInitialLoading] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const isFetchingRef = useRef(false);
+    const abortRef = useRef(null);
+    const currentQueryRef = useRef('');
+    const [isLoadMoreHover, setIsLoadMoreHover] = useState(false);
+    const IMAGES_PER_PAGE = 30;
+
+    const buildUrl = useCallback((q) => {
+        return `/api/images?q=${encodeURIComponent(q || '')}`;
+    }, []);
+
+    const fetchPage = useCallback(async (page, replace) => {
+        if (!searchQuery) {
+            setImages([]);
+            setError(null);
+            setTotalPages(1);
+            setCurrentPage(1);
+            return;
+        }
+        // If we are replacing (new search), abort any in-flight request
+        if (replace && abortRef.current) {
+            try { abortRef.current.abort(); } catch (_) {}
+            abortRef.current = null;
+            isFetchingRef.current = false;
+        }
+        // Prevent overlapping pagination fetches
+        if (!replace && isFetchingRef.current) return;
+        isFetchingRef.current = true;
+        setError(null);
+        if (replace) {
+            setIsInitialLoading(true);
+        } else {
+            setIsLoadingMore(true);
+        }
+        try {
+            const controller = new AbortController();
+            abortRef.current = controller;
+            const url = `${buildUrl(searchQuery)}&page=${page}&per_page=${IMAGES_PER_PAGE}`;
+            const res = await axios.get(url, { signal: controller.signal });
+            if (controller.signal.aborted) return;
+            // Ignore stale results if query changed mid-flight
+            if (currentQueryRef.current !== searchQuery) return;
+            const hits = res.data?.hits || [];
+            const total = res.data?.totalPages || 1;
+            setTotalPages(total);
+            setCurrentPage(page);
+            setImages((prev) => {
+                const base = replace ? [] : prev;
+                const merged = [...base, ...hits];
+                const seen = new Set();
+                const unique = [];
+                for (const img of merged) {
+                    const id = img?.id;
+                    if (id == null || !seen.has(id)) {
+                        if (id != null) seen.add(id);
+                        unique.push(img);
+                    }
+                }
+                return unique;
+            });
+        } catch (err) {
+            // Ignore aborted requests
+            if (err?.name !== 'CanceledError' && err?.name !== 'AbortError') {
+                setError('Failed to load images. Please try again.');
+            }
+        } finally {
+            isFetchingRef.current = false;
+            setIsInitialLoading(false);
+            setIsLoadingMore(false);
+        }
+    }, [buildUrl, searchQuery]);
+
+    useEffect(() => {
+        // On search change, fetch first page
+        if (!searchQuery) {
+            if (abortRef.current) {
+                try { abortRef.current.abort(); } catch (_) {}
+                abortRef.current = null;
+            }
+            setImages([]);
+            setError(null);
+            setCurrentPage(1);
+            setTotalPages(1);
+            return;
+        }
+        // Reset and mark latest query, clear prior images to avoid flashes
+        currentQueryRef.current = searchQuery;
+        setImages([]);
+        setError(null);
+        setCurrentPage(1);
+        setTotalPages(1);
+        fetchPage(1, true);
+    }, [searchQuery, fetchPage]);
+
+    return (
+        <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%' }}>
+            {error && <div style={{ padding: 24, textAlign: 'center', color: '#ef4444' }}>{error}</div>}
+            {images.length === 0 && isInitialLoading && <SkeletonGrid count={12} />}
+            {images.length > 0 && (
+                <ImageGrid
+                    images={images}
+                    onSelect={(img) => {
+                        setSelectedImage(img);
+                    }}
+                />
+            )}
+            {images.length > 0 && currentPage < totalPages && (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0 24px 0' }}>
+                    <button
+                        onClick={() => fetchPage(currentPage + 1, false)}
+                        disabled={isLoadingMore}
+                        onMouseEnter={() => setIsLoadMoreHover(true)}
+                        onMouseLeave={() => setIsLoadMoreHover(false)}
+                        style={{
+                            padding: '10px 16px',
+                            borderRadius: 8,
+                            border: '1px solid transparent',
+                            background: isLoadMoreHover ? '#1D4ED8' : '#2563EB',
+                            color: '#fff',
+                            cursor: isLoadingMore ? 'default' : 'pointer',
+                            minWidth: 140,
+                            transition: 'background-color 150ms ease'
+                        }}
+                    >
+                        {isLoadingMore ? 'Loading…' : 'Load More'}
+                    </button>
+                </div>
+            )}
+            <ImageModal image={selectedImage} onClose={() => setSelectedImage(null)} />
+        </div>
+    );
+}
+
+export default ImagesContainer;
